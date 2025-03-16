@@ -3,6 +3,7 @@
 /test/files/lib/*.jar
 /test/files/speclib/instrumented.jar
 /tools/*.jar
+node_modules/
 
 # target directory for build
 /build/
