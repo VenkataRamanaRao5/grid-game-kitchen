@@ -8,3 +8,4 @@ scalaJSUseMainModuleInitializer := true
 jsEnv := new org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv()
 
 libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "2.8.0"
+libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0" % Test
