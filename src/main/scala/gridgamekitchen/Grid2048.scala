@@ -1,5 +1,8 @@
 package gridgamekitchen
 
+import scala.scalajs.js.annotation.JSExportTopLevel
+
+@JSExportTopLevel("Grid2048")
 class GameGrid extends RookGrid[Int]:
     val nrows = 4
     val ncols = 4
@@ -56,14 +59,6 @@ class GameGrid extends RookGrid[Int]:
     override def placeAt(x: Int, y: Int, data: Int): Unit = grid(x)(y).block = Some(new NumberBlock(grid(x)(y), data))
     
     def init(): Unit = 
-        var sq = grid(1)(1)
-        sq.block = Some(new NumberBlock(sq, 2))
-        sq = grid(2)(1)
-        sq.block = Some(new NumberBlock(sq, 2))
-        sq = grid(3)(1)
-        sq.block = Some(new NumberBlock(sq, 2))
-        sq = grid(0)(1)
-        sq.block = Some(new NumberBlock(sq, 2))
         placeRandom()
         placeRandom()
 
