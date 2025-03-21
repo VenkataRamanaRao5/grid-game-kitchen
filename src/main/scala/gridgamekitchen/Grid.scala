@@ -1,12 +1,17 @@
 package gridgamekitchen
 
+import com.raquo.laminar.api.L.{Var, Signal}
+
 trait Grid[Data]:
     
     sealed trait Directions
         
-    protected trait Block(var data: Data, var square: Square):
+    protected trait Block(_data: Data, var square: Square):
+        private var data0 = Var(_data)
+        def data: Data = data0.now()
+        def signal: Signal[Data] = data0.signal
         def updationFunction(newData: Data, oldData: Data): Data
-        def updateData(newData: Data): Unit = data = updationFunction(newData, data)
+        def updateData(newData: Data): Unit = data0.update(old => updationFunction(newData, old))
         def moveTo(destination: Square): Unit = 
             this.square.block = None
             destination.block = Some(this)
@@ -43,10 +48,16 @@ trait Grid[Data]:
                 case Some(b) => None
                 case None => Some((rowIndex, colIndex))
     })
+
     def isOutside(row: Int, col: Int) = row < 0 || col < 0 || row >= grid.length || col >= grid(0).length
+    
+    def signalGrid = grid.map(row => row.map(_.block.map(_.signal).getOrElse(Signal.fromValue(emptyData))))
+
     def dataGrid = grid.map(row => row.map(_.block.map(_.data).getOrElse(emptyData)))
+    
     def setGrid(givenGrid: IndexedSeq[((Int, Int), Data)]): Unit = 
         givenGrid.foreach{case ((x, y), data) => placeAt(x, y, data)}
+    
     def placeAt(row: Int, col: Int, data: Data): Unit
 
     def get(row: Int, col: Int): Option[SquareType] = 

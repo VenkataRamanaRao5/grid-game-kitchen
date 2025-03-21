@@ -3,70 +3,78 @@ package gridgamekitchen
 import org.scalajs.dom
 import org.scalajs.dom.document
 import scala.scalajs.js.annotation.JSExportTopLevel
+import com.raquo.laminar.api.L.{*, given}
 
-def appendPar(targetNode: dom.Node, text: String): Unit = {
-  val parNode = document.createElement("p")
-  parNode.textContent = text
-  targetNode.appendChild(parNode)
-}
-
-@JSExportTopLevel("clickHandler")
-def addClickedMessage(): Unit = {
-  toggleGrid()
-  appendPar(document.body, "You clicked the button!")
-}
-
-def appendGrid(targetNode: dom.Element, grid: GameGrid): Unit = {
-  val gridElement = document.createElement("div")
-  gridElement.id = "grid"
-  grid.dataGrid.foreach { row =>
-    val rowNode = document.createElement("div")
-    rowNode.classList.add("row")
-    row.foreach { cell =>
-      val cellNode = document.createElement("div")
-      cellNode.classList.add("cell")
-      cellNode.textContent = cell.toString
-      rowNode.appendChild(cellNode)
-    }
-    gridElement.appendChild(rowNode)
-  }
-  targetNode.appendChild(gridElement)
-}
+def renderGrid(g: GameGrid) = 
+  div(
+    idAttr("grid"),
+    g.signalGrid.map(row => 
+      div(
+        cls("row"),
+        row.map(cell => 
+          div(
+            cls("cell"),
+            child.text <-- cell.map(_.toString())
+          )
+        )
+      )
+    ),
+  )
 
 def toggleGrid() = {
   val gridElement = document.getElementById("grid")
-  if(gridElement.classList.contains("hidden")) {
+  if (gridElement.classList.contains("hidden")) {
     gridElement.classList.remove("hidden")
   } else {
     gridElement.classList.add("hidden")
   }
 }
 
-object HelloWorld {
+object GridApp {
+  val g = GameGrid()
+  g.init()
   def main(args: Array[String]): Unit = {
-    document.addEventListener(
-      "DOMContentLoaded",
-      { (e: dom.Event) =>
-        setupUI()
-      }
+    val root = document.getElementById("root")
+
+    val appElement = div(
+      button(
+        "Down",
+        onClick --> { _ =>
+          g.moveGrid(g.Down)
+          g.placeRandom()
+          println(g.dataGrid.flatMap(_.toString()).mkString(" "))
+        },
+      ),
+      button(
+        "Up",
+        onClick --> { _ =>
+          g.moveGrid(g.Up)
+          g.placeRandom()
+          println(g.dataGrid.flatMap(_.toString()).mkString(" "))
+        },
+      ),
+      button(
+        "Left",
+        onClick --> { _ =>
+          g.moveGrid(g.Left)
+          g.placeRandom()
+          println(g.dataGrid.flatMap(_.toString()).mkString(" "))
+        },
+      ),
+      button(
+        "Right",
+        onClick --> { _ =>
+          g.moveGrid(g.Right)
+          g.placeRandom()
+          println(g.dataGrid.flatMap(_.toString()).mkString(" "))
+        },
+      ),
+      renderGrid(g),
+    )
+    renderOnDomContentLoaded(
+      root,
+      appElement,
     )
   }
-}
 
-def setupUI(): Unit = {
-  val button = document.createElement("button")
-  button.textContent = "Toggle Grid"
-  button.addEventListener(
-    "click",
-    { (e: dom.MouseEvent) =>
-      addClickedMessage()
-    }
-  )
-  document.body.appendChild(button)
-
-  val grid = GameGrid()
-  grid.init()
-  appendGrid(document.body, grid)
-
-  appendPar(document.body, "Hello World")
 }

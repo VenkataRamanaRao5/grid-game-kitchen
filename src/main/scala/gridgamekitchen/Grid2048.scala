@@ -1,7 +1,9 @@
 package gridgamekitchen
 
-import scala.scalajs.js.annotation.JSExportTopLevel
+import scala.scalajs.js.annotation.{JSExportAll, JSExportTopLevel}
+import scala.util.Random
 
+@JSExportAll
 @JSExportTopLevel("Grid2048")
 class GameGrid extends RookGrid[Int]:
     val nrows = 4
@@ -9,7 +11,7 @@ class GameGrid extends RookGrid[Int]:
     override val emptyData = 0
     type SquareType = RookSquare
 
-    val grid: IndexedSeq[IndexedSeq[SquareType]] = IndexedSeq.tabulate(nrows, ncols)((rowi, coli) => 
+    override val grid: IndexedSeq[IndexedSeq[SquareType]] = IndexedSeq.tabulate(nrows, ncols)((rowi, coli) => 
         new RookSquare(){
             override val row = rowi
             override val col = coli
@@ -50,11 +52,9 @@ class GameGrid extends RookGrid[Int]:
         frontier.foreach(sq => pullFrom(sq, opposite))
 
     def placeRandom(): Unit = 
-        empties.headOption match
-            case Some((x, y)) => 
-                val sq = grid(x)(y)
-                sq.block = Some(new NumberBlock(sq, 2))
-            case None => ()
+        val index = Random.nextInt(empties.length)
+        val (x, y) = empties(index)
+        placeAt(x, y, if Random.nextFloat() < 0.9 then 2 else 4)
 
     override def placeAt(x: Int, y: Int, data: Int): Unit = grid(x)(y).block = Some(new NumberBlock(grid(x)(y), data))
     

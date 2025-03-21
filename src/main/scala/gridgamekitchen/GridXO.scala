@@ -1,7 +1,8 @@
 package gridgamekitchen
 
-import scala.scalajs.js.annotation.JSExportTopLevel
+import scala.scalajs.js.annotation.{JSExportAll, JSExportTopLevel}
 
+@JSExportAll
 @JSExportTopLevel("GridXO")
 class TicTacToe extends QueenGrid[Char]:
     val nrows = 3
