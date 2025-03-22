@@ -2,8 +2,6 @@ package gridgamekitchen
 
 import scala.scalajs.js.annotation.{JSExportAll, JSExportTopLevel}
 
-@JSExportAll
-@JSExportTopLevel("GridXO")
 class TicTacToe extends QueenGrid[Char]:
     val nrows = 3
     val ncols = 3
@@ -22,17 +20,17 @@ class TicTacToe extends QueenGrid[Char]:
         override def updationFunction(newch: Char, oldch: Char) = newch
 
     override def placeAt(row: Int, col: Int, ch: Char): Unit = 
-        grid(row)(col).block = Some(new XOBlock(grid(row)(col), ch))
+        grid(row)(col).block.set(Some(new XOBlock(grid(row)(col), ch)))
 
     def place(square: Square, ch: Char): Unit = 
-        placeAt(square.row, square.col, ch)
+        placeAtGrid(square.row, square.col, ch)
 
     def checkWinAt(square: QueenSquare): Boolean = 
-        val ch = square.block.get.data
-        square.thisRow.forall(_.block.forall(_.data == ch)) || 
-        square.thisColumn.forall(_.block.forall(_.data == ch)) ||
-        square.backSlashDiagonal.forall(_.block.forall(_.data == ch)) ||
-        square.forwardSlashDiagonal.forall(_.block.forall(_.data == ch))
+        val ch = square.block.now().get.data
+        square.thisRow.forall(_.block.now().forall(_.data == ch)) || 
+        square.thisColumn.forall(_.block.now().forall(_.data == ch)) ||
+        square.backSlashDiagonal.forall(_.block.now().forall(_.data == ch)) ||
+        square.forwardSlashDiagonal.forall(_.block.now().forall(_.data == ch))
 
     def ply(square: QueenSquare, ch: Char): Boolean =
         place(square, ch)

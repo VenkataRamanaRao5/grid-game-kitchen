@@ -3,8 +3,6 @@ package gridgamekitchen
 import scala.scalajs.js.annotation.{JSExportAll, JSExportTopLevel}
 import scala.util.Random
 
-@JSExportAll
-@JSExportTopLevel("Grid2048")
 class GameGrid extends RookGrid[Int]:
     val nrows = 4
     val ncols = 4
@@ -21,12 +19,13 @@ class GameGrid extends RookGrid[Int]:
         override def updationFunction(newData: Int, oldData: Int) = oldData * 2
 
     private def pullFrom(square: SquareType, dir: Directions): Unit = 
-        square.nonEmpty(dir) match 
+        square.nonEmpty(dir).map{
             case Some(nextSquare) => 
-                val next = (square.block, nextSquare.block) match
+                val next = (square.block.now(), nextSquare.block.now()) match
                     case (Some(thisBlock), Some(nextBlock)) => 
                         println((dir, square, nextSquare))
                         if thisBlock.data == nextBlock.data then
+                            thisBlock.removeFromGrid()
                             nextSquare.moveTo(square)
                             nextBlock.updateData(0)
                             square
@@ -39,7 +38,7 @@ class GameGrid extends RookGrid[Int]:
                         square
                 pullFrom(next, dir)
             case None => ()
-        
+        }
 
     def moveGrid(move: Directions): Unit = 
         val (frontier, opposite) = move match
@@ -54,16 +53,18 @@ class GameGrid extends RookGrid[Int]:
     def placeRandom(): Unit = 
         val index = Random.nextInt(empties.length)
         val (x, y) = empties(index)
-        placeAt(x, y, if Random.nextFloat() < 0.9 then 2 else 4)
+        placeAtGrid(x, y, if Random.nextFloat() < 0.9 then 2 else 4)
 
-    override def placeAt(x: Int, y: Int, data: Int): Unit = grid(x)(y).block = Some(new NumberBlock(grid(x)(y), data))
+    override def placeAt(x: Int, y: Int, data: Int): Unit = grid(x)(y).block.set(Some(new NumberBlock(grid(x)(y), data)))
     
     def init(): Unit = 
         placeRandom()
         placeRandom()
 
     def clear(): Unit = 
-        grid.foreach(row => row.foreach(sq => sq.block = None))
+        grid.foreach(row => row.foreach(sq => sq.block.set(None)))
+        blockVar.update(_ => List())
+
 
     
         

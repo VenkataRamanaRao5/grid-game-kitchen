@@ -5,20 +5,17 @@ import org.scalajs.dom.document
 import scala.scalajs.js.annotation.JSExportTopLevel
 import com.raquo.laminar.api.L.{*, given}
 
-def renderGrid(g: GameGrid) = 
+def renderGrid(g: GameGrid) =
   div(
     idAttr("grid"),
-    g.signalGrid.map(row => 
-      div(
-        cls("row"),
-        row.map(cell => 
-          div(
-            cls("cell"),
-            child.text <-- cell.map(_.toString())
-          )
+    children <-- g.blockSignal.map { blocks =>
+      blocks.map { block =>
+        div(
+          cls := "block",
+          block.data.toString()
         )
-      )
-    ),
+      }
+    }
   )
 
 def toggleGrid() = {
@@ -43,7 +40,7 @@ object GridApp {
           g.moveGrid(g.Down)
           g.placeRandom()
           println(g.dataGrid.flatMap(_.toString()).mkString(" "))
-        },
+        }
       ),
       button(
         "Up",
@@ -51,7 +48,7 @@ object GridApp {
           g.moveGrid(g.Up)
           g.placeRandom()
           println(g.dataGrid.flatMap(_.toString()).mkString(" "))
-        },
+        }
       ),
       button(
         "Left",
@@ -59,7 +56,7 @@ object GridApp {
           g.moveGrid(g.Left)
           g.placeRandom()
           println(g.dataGrid.flatMap(_.toString()).mkString(" "))
-        },
+        }
       ),
       button(
         "Right",
@@ -67,13 +64,13 @@ object GridApp {
           g.moveGrid(g.Right)
           g.placeRandom()
           println(g.dataGrid.flatMap(_.toString()).mkString(" "))
-        },
+        }
       ),
-      renderGrid(g),
+      renderGrid(g)
     )
     renderOnDomContentLoaded(
       root,
-      appElement,
+      appElement
     )
   }
 

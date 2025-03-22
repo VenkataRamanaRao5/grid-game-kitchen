@@ -38,3 +38,4 @@ project/**/metals.sbt
 .bsp
 .history
 index-fastlink.html
+src/main/scala/gridgamekitchen/worksheets/
