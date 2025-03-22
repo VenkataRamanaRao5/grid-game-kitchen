@@ -6,7 +6,8 @@ trait Grid[Data]:
     
     sealed trait Directions
         
-    protected trait Block(_data: Data, _square: Square):
+    trait Block(_data: Data, _square: Square):
+        val id = System.currentTimeMillis()
         private var data0 = Var(_data)
         private var square0 = Var(_square)
         def data: Data = data0.now()

@@ -6,6 +6,15 @@ import scala.scalajs.js.annotation.JSExportTopLevel
 import com.raquo.laminar.api.L.{*, given}
 
 def renderGrid(g: GameGrid) =
+  def renderBlock(block: Signal[g.Block]) =
+    div(
+      child.text <-- block.flatMapSwitch(b => b.signal),
+      cls("cell block"),
+      styleProp("top") <-- block.flatMapSwitch(_.square.map(sq => s"${sq.row * 60}px")),
+      styleProp("left") <-- block.flatMapSwitch(_.square.map(sq => s"${sq.col * 60}px")),
+    )
+  end renderBlock
+
   div(
     idAttr("grid"),
     div(
@@ -19,17 +28,8 @@ def renderGrid(g: GameGrid) =
           ),
         )
       ),
-      children <-- g.blocksSignal.map(blocks =>
-        blocks.map(block =>
-          div(
-            child.text <-- block.signal.map(data => data.toString()),
-            cls("cell block"),
-            styleProp("grid-row") <-- block.square.map(_.row + 1),
-            styleProp("grid-column") <-- block.square.map(_.col + 1)
-          ),
-        ),
-      )
-    ),
+      children <-- g.blocksSignal.split(_.id) { (id, intial, block) => renderBlock(block) }
+    )
   )
 
 def toggleGrid() = {
@@ -46,7 +46,10 @@ object GridApp {
   g.init()
   def main(args: Array[String]): Unit = {
     val root = document.getElementById("root")
-    document.documentElement.setAttribute("style", s"--grid-rows: ${g.nrows}; --grid-cols: ${g.ncols};")
+    document.documentElement.setAttribute(
+      "style",
+      s"--grid-rows: ${g.nrows}; --grid-cols: ${g.ncols};"
+    )
     val appElement = div(
       button(
         "Down",

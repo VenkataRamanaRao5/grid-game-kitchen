@@ -8,6 +8,7 @@ class TicTacToe extends QueenGrid[Char]:
     val nrows = 3
     val ncols = 3
     type SquareType = QueenSquare
+    type BlockType = XOBlock
 
     val grid: IndexedSeq[IndexedSeq[SquareType]] = IndexedSeq.tabulate(nrows, ncols)((rowi, coli) => 
         new QueenSquare(){

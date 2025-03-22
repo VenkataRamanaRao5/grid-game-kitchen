@@ -2,6 +2,7 @@ package gridgamekitchen
 
 import scala.scalajs.js.annotation.{JSExportAll, JSExportTopLevel}
 import scala.util.Random
+import scala.annotation.static
 
 @JSExportAll
 @JSExportTopLevel("Grid2048")
