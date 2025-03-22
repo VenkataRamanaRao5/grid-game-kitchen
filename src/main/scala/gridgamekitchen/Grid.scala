@@ -6,16 +6,18 @@ trait Grid[Data]:
     
     sealed trait Directions
         
-    protected trait Block(_data: Data, var square: Square):
+    protected trait Block(_data: Data, _square: Square):
         private var data0 = Var(_data)
+        private var square0 = Var(_square)
         def data: Data = data0.now()
         def signal: Signal[Data] = data0.signal
+        def square = square0.signal
         def updationFunction(newData: Data, oldData: Data): Data
         def updateData(newData: Data): Unit = data0.update(old => updationFunction(newData, old))
         def moveTo(destination: Square): Unit = 
-            this.square.block = None
+            this.square0.now().block = None
             destination.block = Some(this)
-            this.square = destination
+            this.square0.set(destination)
 
     protected sealed trait Square:
 
@@ -41,6 +43,11 @@ trait Grid[Data]:
     type SquareType <: Square
     val emptyData: Data
     val grid: IndexedSeq[IndexedSeq[SquareType]]
+    val blocksVar: Var[IndexedSeq[Block]] = Var(IndexedSeq())
+    val blocksSignal: Signal[IndexedSeq[Block]] = blocksVar.signal
+
+    def removeBlock(block: Block): Unit = 
+        blocksVar.update(blocks => blocks.filterNot(_ == block))
 
     def empties: IndexedSeq[(Int, Int)] = grid.zipWithIndex.flatMap((row, rowIndex) => row.zipWithIndex.flatMap{
         case (sq, colIndex) => 
@@ -50,8 +57,6 @@ trait Grid[Data]:
     })
 
     def isOutside(row: Int, col: Int) = row < 0 || col < 0 || row >= grid.length || col >= grid(0).length
-    
-    def signalGrid = grid.map(row => row.map(_.block.map(_.signal).getOrElse(Signal.fromValue(emptyData))))
 
     def dataGrid = grid.map(row => row.map(_.block.map(_.data).getOrElse(emptyData)))
     
@@ -59,6 +64,10 @@ trait Grid[Data]:
         givenGrid.foreach{case ((x, y), data) => placeAt(x, y, data)}
     
     def placeAt(row: Int, col: Int, data: Data): Unit
+
+    def placeAtGrid(row: Int, col: Int, data: Data): Unit = 
+        placeAt(row, col, data)
+        blocksVar.update(blocks => blocks :+ grid(row)(col).block.get)
 
     def get(row: Int, col: Int): Option[SquareType] = 
         if isOutside(row, col) then None

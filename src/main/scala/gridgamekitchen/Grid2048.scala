@@ -27,6 +27,7 @@ class GameGrid extends RookGrid[Int]:
                     case (Some(thisBlock), Some(nextBlock)) => 
                         println((dir, square, nextSquare))
                         if thisBlock.data == nextBlock.data then
+                            removeBlock(thisBlock)
                             nextSquare.moveTo(square)
                             nextBlock.updateData(0)
                             square
@@ -52,9 +53,12 @@ class GameGrid extends RookGrid[Int]:
         frontier.foreach(sq => pullFrom(sq, opposite))
 
     def placeRandom(): Unit = 
-        val index = Random.nextInt(empties.length)
-        val (x, y) = empties(index)
-        placeAt(x, y, if Random.nextFloat() < 0.9 then 2 else 4)
+        empties match
+            case IndexedSeq() => ()
+            case empties =>
+                val index = Random.nextInt(empties.length)
+                val (x, y) = empties(index)
+                placeAtGrid(x, y, if Random.nextFloat() < 0.9 then 2 else 4)
 
     override def placeAt(x: Int, y: Int, data: Int): Unit = grid(x)(y).block = Some(new NumberBlock(grid(x)(y), data))
     
