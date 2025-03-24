@@ -5,13 +5,20 @@ import org.scalajs.dom.document
 import scala.scalajs.js.annotation.JSExportTopLevel
 import com.raquo.laminar.api.L.{*, given}
 
-def renderGrid(g: GameGrid) =
+def renderGrid(g: GameGrid, cellSize: Int, gridGap: Int) =
   def renderBlock(block: Signal[g.Block]) =
     div(
       child.text <-- block.flatMapSwitch(b => b.signal),
       cls("cell block"),
-      styleProp("top") <-- block.flatMapSwitch(_.square.map(sq => s"${sq.row * 60}px")),
-      styleProp("left") <-- block.flatMapSwitch(_.square.map(sq => s"${sq.col * 60}px")),
+      cls <-- block.flatMapSwitch(
+        _.signal.map(data => g.className(data))
+      ),
+      styleProp("top") <-- block.flatMapSwitch(
+        _.square.map(sq => s"${sq.row * (cellSize + gridGap)}px")
+      ),
+      styleProp("left") <-- block.flatMapSwitch(
+        _.square.map(sq => s"${sq.col * (cellSize + gridGap)}px")
+      )
     )
   end renderBlock
 
@@ -28,7 +35,9 @@ def renderGrid(g: GameGrid) =
           ),
         )
       ),
-      children <-- g.blocksSignal.split(_.id) { (id, intial, block) => renderBlock(block) }
+      children <-- g.blocksSignal.split(_.id) { (id, intial, block) =>
+        renderBlock(block)
+      }
     )
   )
 
@@ -44,47 +53,33 @@ def toggleGrid() = {
 object GridApp {
   val g = GameGrid()
   g.init()
+  val cellSize = 50
+  val gridGap = 5
   def main(args: Array[String]): Unit = {
-    val root = document.getElementById("root")
     document.documentElement.setAttribute(
       "style",
-      s"--grid-rows: ${g.nrows}; --grid-cols: ${g.ncols};"
+      s"""
+        --grid-rows: ${g.nrows};
+        --grid-cols: ${g.ncols};
+        --cell-size: ${cellSize}px;
+        --grid-gap: ${gridGap}px;
+      """
     )
-    val appElement = div(
-      button(
-        "Down",
-        onClick --> { _ =>
-          g.moveGrid(g.Down)
-          g.placeRandom()
-          println(g.dataGrid.flatMap(_.toString()).mkString(" "))
+    document.addEventListener(
+      "keydown",
+      (e: dom.KeyboardEvent) => {
+        println(e.key)
+        e.key match {
+          case "ArrowUp"    => g.moveGrid(g.Up)
+          case "ArrowDown"  => g.moveGrid(g.Down)
+          case "ArrowLeft"  => g.moveGrid(g.Left)
+          case "ArrowRight" => g.moveGrid(g.Right)
         }
-      ),
-      button(
-        "Up",
-        onClick --> { _ =>
-          g.moveGrid(g.Up)
-          g.placeRandom()
-          println(g.dataGrid.flatMap(_.toString()).mkString(" "))
-        }
-      ),
-      button(
-        "Left",
-        onClick --> { _ =>
-          g.moveGrid(g.Left)
-          g.placeRandom()
-          println(g.dataGrid.flatMap(_.toString()).mkString(" "))
-        }
-      ),
-      button(
-        "Right",
-        onClick --> { _ =>
-          g.moveGrid(g.Right)
-          g.placeRandom()
-          println(g.dataGrid.flatMap(_.toString()).mkString(" "))
-        }
-      ),
-      renderGrid(g)
+        println(g.dataGrid.flatMap(_.toString()).mkString(" "))
+      }
     )
+    val root = document.getElementById("root")
+    val appElement = renderGrid(g, cellSize, gridGap)
     renderOnDomContentLoaded(
       root,
       appElement

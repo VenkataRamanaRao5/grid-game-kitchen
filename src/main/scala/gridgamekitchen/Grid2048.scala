@@ -3,6 +3,7 @@ package gridgamekitchen
 import scala.scalajs.js.annotation.{JSExportAll, JSExportTopLevel}
 import scala.util.Random
 import scala.annotation.static
+import scala.collection.immutable.HashMap
 
 @JSExportAll
 @JSExportTopLevel("Grid2048")
@@ -52,6 +53,7 @@ class GameGrid extends RookGrid[Int]:
             case _ => ???
 
         frontier.foreach(sq => pullFrom(sq, opposite))
+        placeRandom()
 
     def placeRandom(): Unit = 
         empties match
@@ -60,6 +62,23 @@ class GameGrid extends RookGrid[Int]:
                 val index = Random.nextInt(empties.length)
                 val (x, y) = empties(index)
                 placeAtGrid(x, y, if Random.nextFloat() < 0.9 then 2 else 4)
+
+    def className(d: Int): String = 
+        val classNames = HashMap(
+            0 -> "empty",
+            2 -> "two",
+            4 -> "four",
+            8 -> "eight",
+            16 -> "sixteen",
+            32 -> "thirty-two",
+            64 -> "sixty-four",
+            128 -> "one-two-eight",
+            256 -> "two-five-six",
+            512 -> "five-twelve",
+            1024 -> "thousand-twenty-four",
+            2048 -> "two-thousand-forty-eight"
+        )
+        classNames(d)
 
     override def placeAt(x: Int, y: Int, data: Int): Unit = grid(x)(y).block = Some(new NumberBlock(grid(x)(y), data))
     
