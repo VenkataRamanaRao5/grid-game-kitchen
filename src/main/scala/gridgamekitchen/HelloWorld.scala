@@ -9,10 +9,10 @@ import org.scalajs.dom.KeyboardEvent
 def renderGrid(g: GameGrid, cellSize: Int, gridGap: Int, transitionTime: Int) =
   def renderBlock(block: Signal[g.Block]) =
     div(
-      child.text <-- block.flatMapSwitch(_.dataSignal),
+      child.text <-- block.flatMapSwitch(_.dataSignal.composeChanges(_.delay(transitionTime))),
       cls("cell block"),
       cls <-- block.flatMapSwitch(
-        _.dataSignal.map(data => g.className(data))
+        _.dataSignal.composeChanges(_.delay(transitionTime)).map(data => g.className(data))
       ),
       styleProp("top") <-- block.flatMapSwitch(
         _.square.map(sq => style.px(sq.row * (cellSize + gridGap)))
@@ -39,22 +39,14 @@ def renderGrid(g: GameGrid, cellSize: Int, gridGap: Int, transitionTime: Int) =
     },
   )
 
-
-def toggleGrid() = {
-  val gridElement = document.getElementById("grid")
-  if (gridElement.classList.contains("hidden")) {
-    gridElement.classList.remove("hidden")
-  } else {
-    gridElement.classList.add("hidden")
-  }
-}
-
 object GridApp {
   val g = GameGrid()
   g.init()
-  val cellSize = 50
+
+  val cellSize = 75
   val gridGap = 5
-  val transitionTime = 250
+  val transitionTime = 500
+
   def main(args: Array[String]): Unit = {
     document.addEventListener("keydown", (e: KeyboardEvent) => {
         println(e.key)
@@ -67,7 +59,9 @@ object GridApp {
         println(g.dataGrid.flatMap(_.toString()).mkString(" "))
       }
     )
+
     val root = document.getElementById("root")
+    
     val appElement = div(
       cls("container"),
       styleAttr := s"""
