@@ -4,6 +4,7 @@ import scala.scalajs.js.annotation.{JSExportAll, JSExportTopLevel}
 import scala.util.Random
 import scala.annotation.static
 import scala.collection.immutable.HashMap
+import com.raquo.airstream.state.Var
 
 @JSExportAll
 @JSExportTopLevel("Grid2048")
@@ -28,10 +29,11 @@ class GameGrid extends RookGrid[Int]:
                 val next = (square.block, nextSquare.block) match
                     case (Some(thisBlock), Some(nextBlock)) => 
                         println((dir, square, nextSquare))
-                        if thisBlock.data == nextBlock.data then
+                        if thisBlock.state.now() == 0 && thisBlock.data == nextBlock.data then
                             removeBlock(thisBlock)
                             nextSquare.moveTo(square)
                             nextBlock.updateData(0)
+                            nextBlock.state.set(1)
                             square
                         else
                             val temp = square.neighbour(dir).get
@@ -45,6 +47,7 @@ class GameGrid extends RookGrid[Int]:
         
 
     def moveGrid(move: Directions): Unit = 
+        state.set(0)
         val (frontier, opposite) = move match
             case Left => (grid.map(_.head), Right)
             case Right => (grid.map(_.last), Left)
@@ -52,8 +55,12 @@ class GameGrid extends RookGrid[Int]:
             case Down => (grid.last, Up)
             case _ => ???
 
+        val oldGrid = dataGrid
+
         frontier.foreach(sq => pullFrom(sq, opposite))
-        placeRandom()
+
+        if !dataGrid.sameElements(oldGrid) then placeRandom()
+        state.set(1)
 
     def placeRandom(): Unit = 
         empties match
@@ -83,6 +90,10 @@ class GameGrid extends RookGrid[Int]:
     override def placeAt(x: Int, y: Int, data: Int): Unit = grid(x)(y).block = Some(new NumberBlock(grid(x)(y), data))
     
     def init(): Unit = 
+        state.signal.foreach{
+            case 1 => blocksVar.update(_.map(block => {block.state.set(0); block}))
+            case _: Int => ()
+        }
         placeRandom()
         placeRandom()
 

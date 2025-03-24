@@ -1,17 +1,21 @@
 package gridgamekitchen
 
 import com.raquo.laminar.api.L.{Var, Signal}
+import com.raquo.airstream.ownership.Owner
 
 trait Grid[Data]:
     
     sealed trait Directions
         
     trait Block(_data: Data, _square: Square):
-        val id = System.currentTimeMillis()
-        private var data0 = Var(_data)
-        private var square0 = Var(_square)
+        val id = System.nanoTime()
+        private val data0 = Var(_data)
+        private val square0 = Var(_square)
+        val state = Var(0)
+        val stateSignal = state.signal
+
         def data: Data = data0.now()
-        def signal: Signal[Data] = data0.signal
+        val dataSignal: Signal[Data] = data0.signal
         def square = square0.signal
         def updationFunction(newData: Data, oldData: Data): Data
         def updateData(newData: Data): Unit = data0.update(old => updationFunction(newData, old))
@@ -46,6 +50,11 @@ trait Grid[Data]:
     val grid: IndexedSeq[IndexedSeq[SquareType]]
     val blocksVar: Var[IndexedSeq[Block]] = Var(IndexedSeq())
     val blocksSignal: Signal[IndexedSeq[Block]] = blocksVar.signal
+
+    val state = Var(0)
+    val stateSignal = state.signal
+
+    given owner: Owner = new Owner {}
 
     def removeBlock(block: Block): Unit = 
         blocksVar.update(blocks => blocks.filterNot(_ == block))
