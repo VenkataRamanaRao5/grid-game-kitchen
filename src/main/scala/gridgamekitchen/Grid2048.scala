@@ -1,10 +1,11 @@
 package gridgamekitchen
-
+/*
+import scala.scalajs.js
 import scala.scalajs.js.annotation.{JSExportAll, JSExportTopLevel}
 import scala.util.Random
 import scala.annotation.static
 import scala.collection.immutable.HashMap
-import com.raquo.airstream.state.Var
+import org.scalajs.dom.KeyboardEvent
 
 @JSExportAll
 @JSExportTopLevel("Grid2048")
@@ -97,8 +98,22 @@ class GameGrid extends RookGrid[Int]:
         placeRandom()
         placeRandom()
 
-    def clear(): Unit = 
-        grid.foreach(row => row.foreach(sq => sq.block = None))
+    override val gridListeners = {}.asInstanceOf[js.Dictionary[js.Function]]
+    override val squareListeners = {}.asInstanceOf[js.Dictionary[js.Function]]
+    override val blockListeners = {}.asInstanceOf[js.Dictionary[js.Function]]
+    override val functions = {}.asInstanceOf[js.Dictionary[js.Dynamic]]
+    override val variables = {}.asInstanceOf[js.Dictionary[js.Any]]
+
+    def handleKeyDown(e: KeyboardEvent): Unit =
+        println(e.key)
+        e.key match {
+          case "ArrowUp"    => moveGrid(Up)
+          case "ArrowDown"  => moveGrid(Down)
+          case "ArrowLeft"  => moveGrid(Left)
+          case "ArrowRight" => moveGrid(Right)
+        }
+        println(dataGrid.flatMap(_.toString()).mkString(" "))
 
     
         
+*/

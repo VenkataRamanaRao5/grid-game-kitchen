@@ -7,6 +7,10 @@ lazy val root = project.in(file("."))
     // Tell Scala.js that this is an application with a main method
     scalaJSUseMainModuleInitializer := true,
 
+    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.CommonJSModule) },
+    scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
+    scalaJSLinkerConfig ~= { _.withSourceMap(true) },
+
     jsEnv := new org.scalajs.jsenv.jsdomnodejs.JSDOMNodeJSEnv(),
 
     /* Depend on the scalajs-dom library.

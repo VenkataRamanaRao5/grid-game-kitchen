@@ -4,7 +4,7 @@ object Main:
   def hello(): Unit =
     println("Hello world!")
     println(msg)
-    val g = GameGrid()
+    /*val g = GameGrid()
     println(g.empties.toIndexedSeq.sorted)
     println(g.dataGrid)
     g.init()
@@ -17,7 +17,7 @@ object Main:
     println(g.dataGrid)
     g.clear()
     println(g.empties.toIndexedSeq.sorted)
-    println(g.dataGrid)
+    println(g.dataGrid)*/
 
   def msg = "I was compiled by Scala 3. :)"
 
