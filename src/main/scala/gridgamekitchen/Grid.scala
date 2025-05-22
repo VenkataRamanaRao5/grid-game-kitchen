@@ -57,7 +57,7 @@ trait Grid[Data]:
     var ncols: Int
 
     val emptyData: Data
-    val grid: IndexedSeq[IndexedSeq[SquareType]]
+    var grid: IndexedSeq[IndexedSeq[SquareType]]
     val blocksVar: Var[IndexedSeq[Block]] = Var(IndexedSeq())
     val blocksSignal: Signal[IndexedSeq[Block]] = blocksVar.signal
 
