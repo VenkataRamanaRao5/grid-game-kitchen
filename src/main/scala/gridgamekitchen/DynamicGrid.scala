@@ -7,14 +7,14 @@ import scala.scalajs.js.annotation.{JSExportTopLevel, JSExport, JSExportAll}
 @JSExportAll
 @JSExportTopLevel("DynamicGrid")
 object DynamicGrid:
-
     def create(config: GameConfigJS): Grid[?] = 
         val configClass = GameConfig.fromJS(config)
+        println(s"Creating grid of type: ${configClass.gridType} with data type: ${configClass}")
         val grid = config.gridType match
             case "QueenGrid" => 
                 class GameGrid extends QueenGrid[configClass.Type]:
-                    override val nrows = configClass.nrows
-                    override val ncols = configClass.ncols
+                    var nrows = configClass.nrows
+                    var ncols = configClass.ncols
 
                     type SquareType = QueenSquare
                     type BlockType = GameBlock
@@ -50,8 +50,8 @@ object DynamicGrid:
                 new GameGrid()
 
             case "RookGrid" => new RookGrid[configClass.Type]:
-                override val nrows = configClass.nrows
-                override val ncols = configClass.ncols
+                var nrows = configClass.nrows
+                var ncols = configClass.ncols
 
                 type SquareType = RookSquare
                 type BlockType = GameBlock
@@ -84,8 +84,8 @@ object DynamicGrid:
                 val squareListeners = configClass.squareListeners
 
             case "BishopGrid" => new BishopGrid[configClass.Type]:
-                override val nrows = configClass.nrows
-                override val ncols = configClass.ncols
+                var nrows = configClass.nrows
+                var ncols = configClass.ncols
 
                 type SquareType = BishopSquare
                 type BlockType = GameBlock

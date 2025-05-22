@@ -70,7 +70,7 @@ object GridApp {
 
   val cellSize = 75
   val gridGap = 5
-  val transitionTime = 500
+  val transitionTime = 50
 
   def main(args: Array[String]): Unit = {
 

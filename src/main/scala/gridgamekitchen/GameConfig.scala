@@ -4,6 +4,7 @@ import org.scalajs.dom
 import scala.scalajs.js
 import scala.scalajs.js.annotation.JSImport
 import js.JSConverters._
+import scala.scalajs.reflect.annotation.EnableReflectiveInstantiation
 
 @js.native
 trait GameConfigJS extends js.Object:   
@@ -14,7 +15,7 @@ trait GameConfigJS extends js.Object:
     val ncols: Int = js.native
     val emptyData: Data = js.native
     val updationFunction: js.Function2[Data, Data, Data] = js.native
-    val className: js.Function1[Data, String] = js.native
+    val className: js.Function1[js.Any, String] = js.native
     val init: js.Function0[Unit] = js.native
     val variables: js.Dictionary[js.Any] = js.native
     val functions: js.Dictionary[js.Dynamic] = js.native
@@ -22,6 +23,7 @@ trait GameConfigJS extends js.Object:
     val squareListeners: js.Dictionary[js.Function1[dom.Event, ?]] = js.native
     val gridListeners: js.Dictionary[js.Function1[dom.Event, ?]] = js.native
 
+@EnableReflectiveInstantiation
 class GameConfig[Data](config: GameConfigJS):
     val nrows: Int = config.nrows
     val ncols: Int = config.ncols
@@ -33,7 +35,7 @@ class GameConfig[Data](config: GameConfigJS):
     }
     val init: (Grid[?]) => Unit = (grid: Grid[?]) => config.init.asInstanceOf[js.Function1[Grid[?], Unit]].apply(grid)
     val className: Data => String = { (data: Data) => 
-        config.className.asInstanceOf[Data => String].apply(data)
+        config.className(data.asInstanceOf[js.Any])
     }
     val functions: js.Dictionary[js.Dynamic] = config.functions
     val variables: js.Dictionary[js.Any] = config.variables

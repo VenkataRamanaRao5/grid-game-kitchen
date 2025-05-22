@@ -53,8 +53,8 @@ trait Grid[Data]:
 
     type SquareType <: Square
 
-    val nrows: Int
-    val ncols: Int
+    var nrows: Int
+    var ncols: Int
 
     val emptyData: Data
     val grid: IndexedSeq[IndexedSeq[SquareType]]
