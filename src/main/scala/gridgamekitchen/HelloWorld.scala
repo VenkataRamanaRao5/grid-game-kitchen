@@ -26,7 +26,9 @@ def renderGrid(g: Grid[?], cellSize: Int, gridGap: Int, transitionTime: Int) =
           case (name, func) => 
             blk.thisNode.ref.addEventListener(name, func)
         }
-        blk.thisNode.ref.asInstanceOf[js.Dynamic].block = block.asInstanceOf[js.Object]
+        block.foreach(bloc =>
+          blk.thisNode.ref.asInstanceOf[js.Dynamic].block = bloc.asInstanceOf[js.Object]
+        )(using g.owner)
         blk.thisNode.ref.asInstanceOf[js.Dynamic].grid = g.asInstanceOf[js.Object]
       }),
     )
@@ -68,9 +70,9 @@ object GridApp {
 
   js.Dynamic.global.window.grid = g.asInstanceOf[js.Object]
 
-  val cellSize = 75
-  val gridGap = 5
-  val transitionTime = 50
+  val cellSize = g.cellSize
+  val gridGap = g.gridGap
+  val transitionTime = g.transitionTime
 
   def main(args: Array[String]): Unit = {
 
@@ -85,6 +87,13 @@ object GridApp {
         --grid-gap: ${gridGap}px;
         --transition-time: ${transitionTime}ms;
       """,
+      button(
+        cls("reset-button"),
+        "Reset",
+        onClick --> { _ =>
+          g.init()
+        }
+      ),
       renderGrid(g, cellSize, gridGap, transitionTime),
       onMountCallback(cont => 
         g.gridListeners.foreach{

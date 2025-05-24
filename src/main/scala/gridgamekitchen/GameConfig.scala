@@ -14,6 +14,9 @@ trait GameConfigJS extends js.Object:
     val nrows: Int = js.native
     val ncols: Int = js.native
     val emptyData: Data = js.native
+    val cellSize: Int = js.native
+    val gridGap: Int = js.native
+    val transitionTime: Int = js.native
     val updationFunction: js.Function2[Data, Data, Data] = js.native
     val className: js.Function1[js.Any, String] = js.native
     val init: js.Function0[Unit] = js.native
@@ -30,6 +33,9 @@ class GameConfig[Data](config: GameConfigJS):
     type Type = Data
     val gridType: String = config.gridType
     val emptyData: Data = config.emptyData.asInstanceOf[Data]
+    val cellSize: Int = config.cellSize
+    val gridGap: Int = config.gridGap
+    val transitionTime: Int = config.transitionTime
     val updationFunction: (Data, Data) => Data = { (newData: Data, oldData: Data) => 
         config.updationFunction.asInstanceOf[(Data, Data) => Data].apply(newData, oldData)
     }

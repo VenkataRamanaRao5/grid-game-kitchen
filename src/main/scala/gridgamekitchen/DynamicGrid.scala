@@ -8,6 +8,9 @@ trait GridBuilder[Data](config: GameConfig[Data]) extends Grid[Data]:
     var nrows = config.nrows
     var ncols = config.ncols
     val emptyData = config.emptyData
+    val cellSize = config.cellSize
+    val gridGap = config.gridGap
+    val transitionTime = config.transitionTime
 
     override def placeAt(row: Int, col: Int, data: Data): Unit = {
         grid(row)(col).block = Some(new GameBlock(grid(row)(col), data))
