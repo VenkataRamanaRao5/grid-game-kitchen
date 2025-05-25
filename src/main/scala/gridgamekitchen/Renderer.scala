@@ -68,11 +68,11 @@ def _renderGrid(g: Grid[?]) =
 end _renderGrid
 
 object GridApp {
-  @JSImport("/assets/js/GridXOJS.js", JSImport.Default)
+  @JSImport("./GridXOJS.js", JSImport.Default)
   @js.native
   object gameRulesXO extends GameConfigJS
 
-  @JSImport("/assets/js/Grid2048JS.js", JSImport.Default)
+  @JSImport("./Grid2048JS.js", JSImport.Default)
   @js.native
   object gameRules2048 extends GameConfigJS
   

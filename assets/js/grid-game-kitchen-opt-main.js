@@ -1,6 +1,6 @@
 'use strict';
-import * as $i_$002fassets$002fjs$002fGrid2048JS$002ejs from "/assets/js/Grid2048JS.js";
-import * as $i_$002fassets$002fjs$002fGridXOJS$002ejs from "/assets/js/GridXOJS.js";
+import * as $i_$002e$002fGrid2048JS$002ejs from "./Grid2048JS.js";
+import * as $i_$002e$002fGridXOJS$002ejs from "./GridXOJS.js";
 var $p;
 var $fileLevelThis = this;
 var $getOwnPropertyDescriptors = (Object.getOwnPropertyDescriptors || (() => {
@@ -3058,9 +3058,9 @@ function $c_Lgridgamekitchen_GridApp$() {
   this.tm = null;
   this.tn = null;
   $n_Lgridgamekitchen_GridApp$ = this;
-  this.lT = $m_Lgridgamekitchen_DynamicGrid$().nu($i_$002fassets$002fjs$002fGridXOJS$002ejs.default);
+  this.lT = $m_Lgridgamekitchen_DynamicGrid$().nu($i_$002e$002fGridXOJS$002ejs.default);
   $f_Lgridgamekitchen_GridBuilder__init__V(this.lT);
-  this.j4 = $m_Lgridgamekitchen_DynamicGrid$().nu($i_$002fassets$002fjs$002fGrid2048JS$002ejs.default);
+  this.j4 = $m_Lgridgamekitchen_DynamicGrid$().nu($i_$002e$002fGrid2048JS$002ejs.default);
   $f_Lgridgamekitchen_GridBuilder__init__V(this.j4);
   this.hw = $m_Lcom_raquo_laminar_api_package$().D.ft.gS(this.j4);
   this.dO = this.hw.ce();
