@@ -17,7 +17,7 @@ trait GameConfigJS extends js.Object:
     val cellSize: Int = js.native
     val gridGap: Int = js.native
     val transitionTime: Int = js.native
-    val updationFunction: js.Function2[Data, Data, Data] = js.native
+    val updationFunction: js.Function2[js.Any, js.Any, Data] = js.native
     val className: js.Function1[js.Any, String] = js.native
     val init: js.Function0[Unit] = js.native
     val variables: js.Dictionary[js.Any] = js.native
@@ -37,7 +37,7 @@ class GameConfig[Data](config: GameConfigJS):
     val gridGap: Int = config.gridGap
     val transitionTime: Int = config.transitionTime
     val updationFunction: (Data, Data) => Data = { (newData: Data, oldData: Data) => 
-        config.updationFunction.asInstanceOf[(Data, Data) => Data].apply(newData, oldData)
+        config.updationFunction.apply(newData.asInstanceOf[js.Any], oldData.asInstanceOf[js.Any]).asInstanceOf[Data]
     }
     val init: (Grid[?]) => Unit = (grid: Grid[?]) => config.init.asInstanceOf[js.Function1[Grid[?], Unit]].apply(grid)
     val className: Data => String = { (data: Data) => 

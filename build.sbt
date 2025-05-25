@@ -19,7 +19,7 @@ lazy val root = project.in(file("."))
     libraryDependencies += "org.scala-js" %%% "scalajs-dom" % "2.8.0",
 
     // Depend on Laminar
-    libraryDependencies += "com.raquo" %%% "laminar" % "17.0.0",
+    libraryDependencies += "com.raquo" %%% "laminar" % "17.2.0",
 
     // Testing framework
     libraryDependencies += "org.scalameta" %%% "munit" % "1.0.0" % Test,

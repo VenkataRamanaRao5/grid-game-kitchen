@@ -6,6 +6,23 @@ import com.raquo.laminar.api.L.{Var, Signal}
 import com.raquo.airstream.ownership.Owner
 import scala.scalajs.js.annotation.{JSExportAll, JSExportTopLevel, JSExport}
 import js.JSConverters._
+import com.raquo.airstream.ownership.Subscription
+
+@JSExportAll
+class JSVar[T](var0: Var[T]):
+    def now(): T = var0.now()
+    def set(value: T): Unit = var0.set(value)
+    def update(f: js.Function1[T, T]): Unit = var0.update(f)
+    def signal: JSSignal[T] = JSSignal(var0.signal)
+
+@JSExportAll
+class JSSignal[T](signal: Signal[T]):
+    def forEach(f: js.Function1[T, Unit]): js.Function0[Unit] = {
+        val subs = signal.foreach(f)
+        () => subs.kill()
+    }
+    def map[U](f: js.Function1[T, U]): JSSignal[U] = 
+        JSSignal(signal.map(f))
 
 trait Grid[Data]:
     
@@ -15,7 +32,8 @@ trait Grid[Data]:
         @JSExport val id = System.nanoTime()
         private val data0 = Var(_data)
         private val square0 = Var(_square)
-        @JSExport var state = 0
+        @JSExport val state = JSVar(Var(0))
+        @JSExport val stateSignal = state.signal
 
         @JSExport def data: Data = data0.now()
         val dataSignal: Signal[Data] = data0.signal
@@ -78,7 +96,16 @@ trait Grid[Data]:
     val blocksVar: Var[IndexedSeq[Block]] = Var(IndexedSeq())
     val blocksSignal: Signal[IndexedSeq[Block]] = blocksVar.signal
 
-    @JSExport var state = 0
+    @JSExport("blocksVar") val jsBlocksVar = JSVar(blocksVar.bimap(_.toJSArray)(_.toIndexedSeq))
+    @JSExport("blocksSignal") val jsBlocksSignal = jsBlocksVar.signal
+
+
+    @JSExport("grid")
+    def jsGrid: js.Array[js.Array[SquareType]] = 
+        grid.map(row => row.toJSArray).toJSArray
+
+    @JSExport val state = JSVar(Var(0))
+    @JSExport val stateSignal = state.signal
 
     @JSExport val functions: js.Dictionary[js.Dynamic]
     @JSExport val variables: js.Dictionary[js.Any]
@@ -86,16 +113,16 @@ trait Grid[Data]:
     @JSExport val squareListeners: js.Dictionary[js.Function1[dom.Event, ?]]
     @JSExport val gridListeners: js.Dictionary[js.Function1[dom.Event, ?]]
 
-    given owner: Owner = new Owner {}
-
     @JSExport 
     def removeBlock(block: Block): Unit = 
         blocksVar.update(blocks => blocks.filterNot(_ == block))
-    def empties: js.Array[(Int, Int)] = grid.zipWithIndex.flatMap((row, rowIndex) => row.zipWithIndex.flatMap{
+    
+    @JSExport
+    def empties: js.Array[js.Array[Int]] = grid.zipWithIndex.flatMap((row, rowIndex) => row.zipWithIndex.flatMap{
         case (sq, colIndex) => 
             sq.block match 
                 case Some(b) => None
-                case None => Some((rowIndex, colIndex))
+                case None => Some(js.Array(rowIndex, colIndex))
     }).toJSArray
     
     @JSExport
@@ -130,7 +157,7 @@ trait Grid[Data]:
     def clear(): Unit = 
         grid.foreach(row => row.foreach(sq => sq.block = None))
         blocksVar.update(_ => IndexedSeq())
-        state = 0
+        state.set(0)
 
     def get(row: Int, col: Int): Option[SquareType] = 
         if isOutside(row, col) then None

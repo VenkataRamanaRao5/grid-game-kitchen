@@ -1,4 +1,4 @@
-export const GridXO = {
+export default {
     "typeStr": "Char",
     "gridType": "QueenGrid",
     "nrows": 3,

@@ -50,53 +50,54 @@ html, body, #root {
     height: var(--cell-size);
     text-align: center;
     vertical-align: middle;
+    border-radius: 3px;;
 }
 
 
-.two {
+.C2 {
     background-color: rgb(238, 228, 218)
 }
 
-.four {
+.C4 {
     background-color: rgb(238, 225, 201)
 }
 
-.eight {
+.C8 {
     background-color: rgb(242, 177, 121)
 }
 
-.sixteen {
+.C16 {
     background-color: rgb(245, 149, 99)
 }
 
-.thirty-two {
+.C32 {
     background-color: rgb(246, 124, 95)
 }
 
-.sixty-four {
+.C64 {
     background-color: rgb(246, 94, 59)
 }
 
-.one-two-eight {
+.C128 {
     background-color: rgb(237, 207, 114)
 }
 
-.two-five-six {
+.C256 {
     background-color: rgb(237, 204, 97)
 }
 
-.five-twelve {
+.C512 {
     background-color: rgb(237, 200, 80)
 }
 
-.thousand-twenty-four {
+.C1024 {
     background-color: rgb(237, 197, 63)
 }
 
-.two-thousand-forty-eight {
+.C2048 {
     background-color: rgb(237, 194, 46)
 }
 
-.four-thousand-ninety-six {
+.C2048 {
     background-color: rgb(181, 134, 180)
 }
