@@ -26,7 +26,7 @@ export default {
             ((square.row + square.col == grid.nrows - 1)) && square.forwardSlashDiagonal.every(e1 => e1?.block?.data == ch)
         },
         "ply": function (grid, square) {
-            if(grid.state != 0) {
+            if(grid.state.now() != 0) {
                 alert("Game over!")
                 return
             }
@@ -35,7 +35,7 @@ export default {
             let res = grid.functions.checkWinAt(grid, square)
             if(res) {
                 setTimeout(() => alert(`Player ${ch} wins!`), 100)
-                grid.state = 1
+                grid.state.set(1)
             }
             grid.variables.turn = 1 - grid.variables.turn
         }

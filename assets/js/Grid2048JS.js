@@ -12,7 +12,7 @@ export default {
         console.log(grid)
         grid.state.signal.forEach(s => {
             switch(s) {
-                case 1:
+                case 2:
                     grid.blocksVar.update(bV => bV.map(b =>{
                         b.state.set(0)
                         return b
@@ -21,12 +21,18 @@ export default {
                     return
             }
         })
-        grid.functions.placeRandom(grid)
-        grid.functions.placeRandom(grid)
+        if(grid.state.now() == 0) {
+            grid.functions.placeRandom(grid)
+            grid.functions.placeRandom(grid)
+            grid.state.set(1)
+        }
         console.log("Here")
     },
     "className": (int) => "C" + int.toString(),
-    "variables": {},
+    "variables": {
+        "x": 0,
+        "y": 0
+    },
     "functions": {
         "placeRandom": function (grid) {
             const empties = grid.empties
@@ -66,7 +72,7 @@ export default {
             }
         },
         "moveGrid": function (grid, move) {
-            grid.state.set(0)
+            grid.state.set(1)
             let frontier, opposite
             switch(move) {
                 case grid.Left:
@@ -100,7 +106,7 @@ export default {
             console.log(sameElements)
             if(!sameElements)
                 grid.functions.placeRandom(grid)
-            grid.state.set(1)
+            grid.state.set(2)
             
         }
     },
@@ -129,6 +135,47 @@ export default {
                     return
             }
             console.log(grid.dataGrid)
+        },
+        "touchstart": function (e) {
+            if(e.currentTarget != e.target)
+                return
+            e.stopPropagation()
+            e.preventDefault()
+            const grid = e.currentTarget.grid
+            console.log(e)
+            const touch = e.changedTouches[0]
+            const x = touch.screenX
+            const y = touch.screenY
+            grid.variables.x = x
+            grid.variables.y = y
+        },
+        "touchend": function (e) {
+            if(e.currentTarget != e.target)
+                return
+            e.stopPropagation()
+            e.preventDefault()
+            const grid = e.currentTarget.grid
+            console.log(e, grid)
+            const touch = e.changedTouches[0]
+            const x1 = touch.screenX
+            const y1 = touch.screenY
+            const x0 = grid.variables.x
+            const y0 = grid.variables.y
+            const dx = x1 - x0
+            const dy = y0 - y1
+            const angle = Math.atan2(dy, dx) * 180 / Math.PI
+            console.log(dx, dy, angle)
+            if(angle >= -45 && angle <= 45)
+                grid.functions.moveGrid(grid, grid.Right)
+            else if(angle >= 45 && angle <= 135)
+                grid.functions.moveGrid(grid, grid.Up)
+            else if(angle >= 135 || angle <= -135)
+                grid.functions.moveGrid(grid, grid.Left)
+            else if(angle >= -135 && angle <= -45)
+                grid.functions.moveGrid(grid, grid.Down)
+
+            console.log(grid.dataGrid)
+
         }
     }
 }

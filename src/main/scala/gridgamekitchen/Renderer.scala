@@ -77,9 +77,11 @@ object GridApp {
   object gameRules2048 extends GameConfigJS
   
   val gXO = DynamicGrid.create(gameRulesXO)
+  gXO.init()
   val g2048 = DynamicGrid.create(gameRules2048)
+  g2048.init()
 
-  val g = Var(gXO)
+  val g = Var(g2048)
   val gSignal = g.signal
 
   js.Dynamic.global.window.grid = g.asInstanceOf[js.Object]
@@ -113,11 +115,12 @@ object GridApp {
         cls("select-grid"),
         option(
           value := "XO",
-          "XO"
+          "XO",
         ),
         option(
           value := "2048",
-          "2048"
+          "2048",
+          defaultSelected := true,
         ),
         onChange.mapToValue --> { value =>
           value match {
