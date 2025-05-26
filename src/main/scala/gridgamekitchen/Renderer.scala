@@ -75,11 +75,17 @@ object GridApp {
   @JSImport("./Grid2048JS.js", JSImport.Default)
   @js.native
   object gameRules2048 extends GameConfigJS
+
+  @JSImport("./GridArjunJS.js", JSImport.Default)
+  @js.native
+  object gameRulesArjun extends GameConfigJS
   
   val gXO = DynamicGrid.create(gameRulesXO)
   gXO.init()
   val g2048 = DynamicGrid.create(gameRules2048)
   g2048.init()
+  val gArjun = DynamicGrid.create(gameRulesArjun)
+  gArjun.init()
 
   val g = Var(g2048)
   val gSignal = g.signal
@@ -96,8 +102,8 @@ object GridApp {
     
     val appElement = div(
       cls("container"),
-      styleProp("--grid-row") <-- gSignal.map(_.nrows),
-      styleProp("--grid-cols") <-- gSignal.map(_.ncols),
+      styleProp("--grid-rows") <-- gSignal.flatMapSwitch(_.nrows.var0.signal),
+      styleProp("--grid-cols") <-- gSignal.flatMapSwitch(_.ncols.var0.signal),
       styleProp("--cell-size") <-- cellSize.map(style.px),
       styleProp("--grid-gap") <-- gridGap.map(style.px),
       styleProp("--transition-time") <-- transitionTime.map(t => style.ms(t.toInt)),
@@ -107,6 +113,7 @@ object GridApp {
         onClick --> { _ =>
           gSignal.foreach(g => {
             g.clear()
+            g.state.set(0)
             g.init()
         })
         }
@@ -122,10 +129,15 @@ object GridApp {
           "2048",
           defaultSelected := true,
         ),
+        option(
+          value := "Arjun",
+          "Arjun",
+        ),
         onChange.mapToValue --> { value =>
           value match {
             case "XO" => g.set(gXO)
             case "2048" => g.set(g2048)
+            case "Arjun" => g.set(gArjun)
             case _ => ()
           }
           gSignal.foreach(_.init())

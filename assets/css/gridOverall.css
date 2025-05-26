@@ -22,7 +22,7 @@ html, body, #root {
     grid-template-columns: repeat(var(--grid-cols), var(--cell-size));
     grid-gap: var(--grid-gap);
     background-color: rgb(187, 173, 160);
-    border: solid rgb(187, 173, 160) 5px;
+    border: solid rgb(187, 173, 160) var(--grid-gap);
 }
 
 .cell {
@@ -116,4 +116,14 @@ html, body, #root {
 
 .C2048 {
     background-color: rgb(181, 134, 180)
+}
+
+.Blue {
+    background-color: blue;
+    font-size: 0;
+}
+
+.Yellow {
+    background-color: yellow;
+    font-size: 0;
 }

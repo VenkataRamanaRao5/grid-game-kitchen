@@ -9,14 +9,19 @@ import js.JSConverters._
 import com.raquo.airstream.ownership.Subscription
 
 @JSExportAll
-class JSVar[T](var0: Var[T]):
+class JSVar[T](val var0: Var[T]):
     def now(): T = var0.now()
-    def set(value: T): Unit = var0.set(value)
+    def set(value: T): Unit = {
+        println(value)
+        println(var0.now())
+        var0.set(value)
+        println(var0.now())
+    }
     def update(f: js.Function1[T, T]): Unit = var0.update(f)
     def signal: JSSignal[T] = JSSignal(var0.signal)
 
 @JSExportAll
-class JSSignal[T](signal: Signal[T]):
+class JSSignal[T](val signal: Signal[T]):
     def forEach(f: js.Function1[T, Unit]): js.Function0[Unit] = {
         val subs = signal.foreach(f)
         () => subs.kill()
@@ -27,9 +32,12 @@ class JSSignal[T](signal: Signal[T]):
 trait Grid[Data]:
     
     sealed trait Directions
+
+    private var blockIdCounter = 0
         
     trait Block(_data: Data, _square: Square):
-        @JSExport val id = System.nanoTime()
+        @JSExport val id = blockIdCounter
+        blockIdCounter += 1
         private val data0 = Var(_data)
         private val square0 = Var(_square)
         @JSExport val state = JSVar(Var(0))
@@ -37,7 +45,10 @@ trait Grid[Data]:
 
         @JSExport def data: Data = data0.now()
         val dataSignal: Signal[Data] = data0.signal
-        @JSExport def square = square0.signal
+        val square = square0.signal
+
+        @JSExport("square") def jsSquare = square0.now()
+
         def updationFunction(newData: Data, oldData: Data): Data
         @JSExport def updateData(newData: Data): Unit = data0.update(old => updationFunction(newData, old))
         @JSExport def moveTo(destination: Square): Unit = 
@@ -53,7 +64,7 @@ trait Grid[Data]:
         @JSExport("block") 
         def jsBlock: js.UndefOr[Block] = block.orUndefined
 
-        val neighbours: List[SquareType] = List()
+        def neighbours: List[SquareType]
         
         @JSExport("neighbours") 
         def jsNeighbours: js.Array[SquareType] = neighbours.toJSArray
@@ -84,15 +95,15 @@ trait Grid[Data]:
 
     type SquareType <: Square
 
-    @JSExport var nrows: Int
-    @JSExport var ncols: Int
+    @JSExport val nrows = JSVar(Var(0))
+    @JSExport val ncols = JSVar(Var(0))
 
     @JSExport val emptyData: Data
     @JSExport val cellSize: Int
     @JSExport val gridGap: Int
     @JSExport val transitionTime: Int
 
-    var grid: IndexedSeq[IndexedSeq[SquareType]]
+    var grid: IndexedSeq[IndexedSeq[SquareType]] = IndexedSeq()
     val blocksVar: Var[IndexedSeq[Block]] = Var(IndexedSeq())
     val blocksSignal: Signal[IndexedSeq[Block]] = blocksVar.signal
 
@@ -103,6 +114,9 @@ trait Grid[Data]:
     @JSExport("grid")
     def jsGrid: js.Array[js.Array[SquareType]] = 
         grid.map(row => row.toJSArray).toJSArray
+
+    @JSExport
+    def buildGrid(rows: Int, cols: Int): Unit
 
     @JSExport val state = JSVar(Var(0))
     @JSExport val stateSignal = state.signal
@@ -157,7 +171,6 @@ trait Grid[Data]:
     def clear(): Unit = 
         grid.foreach(row => row.foreach(sq => sq.block = None))
         blocksVar.update(_ => IndexedSeq())
-        state.set(0)
 
     def get(row: Int, col: Int): Option[SquareType] = 
         if isOutside(row, col) then None
@@ -193,6 +206,9 @@ trait RookGrid[Data] extends Grid[Data]:
             case Up => top
             case Down => bottom
             case _ => None
+
+        override def neighbours: List[SquareType] = 
+            List(left, right, top, bottom).flatten
 
         lazy val lefts: IndexedSeq[SquareType] = left.map(l => l +: l.lefts).getOrElse(IndexedSeq())
         lazy val rights: IndexedSeq[SquareType] = right.map(r => r +: r.rights).getOrElse(IndexedSeq())
@@ -238,6 +254,9 @@ trait BishopGrid[Data] extends Grid[Data]:
             case BottomRight => bottomRight
             case _ => None
 
+        override def neighbours: List[SquareType] =
+            List(topLeft, topRight, bottomLeft, bottomRight).flatten
+
         lazy val toplefts: IndexedSeq[SquareType] = topLeft.map(l => l +: l.toplefts).getOrElse(IndexedSeq())
         lazy val toprights: IndexedSeq[SquareType] = topRight.map(r => r +: r.toprights).getOrElse(IndexedSeq())
         lazy val bottomlefts: IndexedSeq[SquareType] = bottomLeft.map(l => l +: l.bottomlefts).getOrElse(IndexedSeq())
@@ -259,4 +278,7 @@ trait QueenGrid[Data] extends RookGrid[Data] with BishopGrid[Data]:
     type SquareType <: QueenSquare
     protected trait QueenSquare extends RookSquare with BishopSquare:
         override def neighbour(dir: Directions) = super[RookSquare].neighbour(dir).orElse(super[BishopSquare].neighbour(dir))
+
+        override def neighbours: List[SquareType] = 
+            super[RookSquare].neighbours ++ super[BishopSquare].neighbours
 

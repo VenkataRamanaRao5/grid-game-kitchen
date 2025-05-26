@@ -5,8 +5,8 @@ import scala.scalajs.js.Dictionary
 import scala.scalajs.js.annotation.{JSExportTopLevel, JSExport, JSExportAll}
 
 trait GridBuilder[Data](config: GameConfig[Data]) extends Grid[Data]:
-    var nrows = config.nrows
-    var ncols = config.ncols
+    nrows.set(config.nrows)
+    ncols.set(config.ncols)
     val emptyData = config.emptyData
     val cellSize = config.cellSize
     val gridGap = config.gridGap
@@ -37,34 +37,47 @@ object QueenGridBuilder:
     def build[Data](config: GameConfig[Data]): Grid[Data] = 
         new QueenGrid[Data] with GridBuilder[Data](config):
             type SquareType = QueenSquare
-            var grid: IndexedSeq[IndexedSeq[SquareType]] = IndexedSeq.tabulate(nrows, ncols)((rowi, coli) => 
-                new QueenSquare(){
-                    override val row = rowi
-                    override val col = coli
-                }
-            )
+
+            override def buildGrid(rows: Int, cols: Int): Unit = 
+                nrows.set(rows)
+                ncols.set(cols)
+                grid = IndexedSeq.tabulate(rows, cols)((rowi, coli) => 
+                    new QueenSquare(){
+                        override val row = rowi
+                        override val col = coli
+                    }
+                )
+            buildGrid(config.nrows, config.ncols)
 
 object RookGridBuilder:
     def build[Data](config: GameConfig[Data]): Grid[Data] = 
         new RookGrid[Data] with GridBuilder[Data](config):
             type SquareType = RookSquare
-            var grid: IndexedSeq[IndexedSeq[SquareType]] = IndexedSeq.tabulate(nrows, ncols)((rowi, coli) => 
-                new RookSquare(){
-                    override val row = rowi
-                    override val col = coli
-                }
-            )
+            override def buildGrid(rows: Int, cols: Int): Unit =
+                nrows.set(rows)
+                ncols.set(cols)
+                grid = IndexedSeq.tabulate(rows, cols)((rowi, coli) => 
+                    new RookSquare(){
+                        override val row = rowi
+                        override val col = coli
+                    }
+                )
+            buildGrid(config.nrows, config.ncols)
 
 object BishopGridBuilder:
     def build[Data](config: GameConfig[Data]): Grid[Data] = 
         new BishopGrid[Data] with GridBuilder[Data](config):
             type SquareType = BishopSquare
-            var grid: IndexedSeq[IndexedSeq[SquareType]] = IndexedSeq.tabulate(nrows, ncols)((rowi, coli) => 
-                new BishopSquare(){
-                    override val row = rowi
-                    override val col = coli
-                }
-            )
+            override def buildGrid(rows: Int, cols: Int): Unit =
+                nrows.set(rows)
+                ncols.set(cols)
+                grid = IndexedSeq.tabulate(rows, cols)((rowi, coli) => 
+                    new BishopSquare(){
+                        override val row = rowi
+                        override val col = coli
+                    }
+                )
+            buildGrid(config.nrows, config.ncols)
         
 
 @JSExportAll
