@@ -12,12 +12,10 @@ export default {
         let state = grid.state.now()
         console.log(grid, state, grid.state)
         if(state == 0) {
-            grid.state.set(2)
-            grid.buildGrid(2, 2)
+            state = 2
+            grid.state.set(state)
         }
-        else {
-            grid.buildGrid(state, state)
-        }
+        grid.buildGrid(state, state)
         console.log(grid)
         grid.clear()
         for(let i = 0; i < state; i++) {
