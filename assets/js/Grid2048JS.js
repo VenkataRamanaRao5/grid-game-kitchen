@@ -10,17 +10,8 @@ export default {
     "updationFunction": (newInt, oldInt) => oldInt * 2,
     "init": (grid) => {
         console.log(grid)
-        grid.state.signal.forEach(s => {
-            switch(s) {
-                case 2:
-                    grid.blocksVar.update(bV => bV.map(b =>{
-                        b.state.set(0)
-                        return b
-                    }))
-                default:
-                    return
-            }
-        })
+        grid.state.set(0)
+        console.log(grid.state.now())
         if(grid.state.now() == 0) {
             grid.functions.placeRandom(grid)
             grid.functions.placeRandom(grid)
@@ -45,6 +36,7 @@ export default {
         },
         "pullFrom": function (grid, square, dir) {
             const nextSquare = square.nonEmpty(dir)
+            console.log(square, nextSquare, dir)
             if(nextSquare) {
                 let next
                 let thisBlock = square.block,

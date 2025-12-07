@@ -12,8 +12,9 @@ trait GridBuilder[Data](config: GameConfig[Data]) extends Grid[Data]:
     val gridGap = config.gridGap
     val transitionTime = config.transitionTime
 
-    override def placeAt(row: Int, col: Int, data: Data): Unit = {
+    override def placeAt(row: Int, col: Int, data: Data): Option[Block] = {
         grid(row)(col).block = Some(new GameBlock(grid(row)(col), data))
+        grid(row)(col).block
     }
 
     type BlockType = GameBlock

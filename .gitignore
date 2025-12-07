@@ -39,3 +39,5 @@ project/**/metals.sbt
 .history
 index-fastopt.html
 /src/main/scala/gridgamekitchen/grid.worksheet.sc
+
+*.txt

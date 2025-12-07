@@ -8,6 +8,8 @@ import scala.scalajs.js.annotation.{JSExportAll, JSExportTopLevel, JSExport}
 import js.JSConverters._
 import com.raquo.airstream.ownership.Subscription
 
+// Need this class to export the Var class with all its methods to JS
+// Else the method names will be some garbled auto generated crap
 @JSExportAll
 class JSVar[T](val var0: Var[T]):
     def now(): T = var0.now()
@@ -20,6 +22,8 @@ class JSVar[T](val var0: Var[T]):
     def update(f: js.Function1[T, T]): Unit = var0.update(f)
     def signal: JSSignal[T] = JSSignal(var0.signal)
 
+
+// Similarly for signal
 @JSExportAll
 class JSSignal[T](val signal: Signal[T]):
     def forEach(f: js.Function1[T, Unit]): js.Function0[Unit] = {
@@ -29,12 +33,18 @@ class JSSignal[T](val signal: Signal[T]):
     def map[U](f: js.Function1[T, U]): JSSignal[U] = 
         JSSignal(signal.map(f))
 
+// The mommy trait
 trait Grid[Data]:
-    
+
+    // All directions are Directions
     sealed trait Directions
 
+    // To keep track of the latest block's id
     private var blockIdCounter = 0
         
+    // The block that moves around
+    // Need individual export for all the methods to 
+    // keep our own names instead of auto generated ones
     trait Block(_data: Data, _square: Square):
         @JSExport val id = blockIdCounter
         blockIdCounter += 1
@@ -90,8 +100,8 @@ trait Grid[Data]:
         def moveTo(sq: SquareType): Unit = 
             block.foreach(_.moveTo(sq))
         
-        @JSExport 
-        override def toString(): String = s"($row, $col): ${block.map(_.data).getOrElse(emptyData)}"
+        //@JSExport 
+        //override def toString(): String = s"($row, $col): ${block.map(_.data).getOrElse(emptyData)}"
 
     type SquareType <: Square
 
@@ -108,7 +118,7 @@ trait Grid[Data]:
     val blocksSignal: Signal[IndexedSeq[Block]] = blocksVar.signal
 
     @JSExport("blocksVar") val jsBlocksVar = JSVar(blocksVar.bimap(_.toJSArray)(_.toIndexedSeq))
-    @JSExport("blocksSignal") val jsBlocksSignal = jsBlocksVar.signal
+    @JSExport("blocks") def jsBlocks = blocksVar.now().toJSArray
 
 
     @JSExport("grid")
@@ -150,7 +160,7 @@ trait Grid[Data]:
         givenGrid.foreach{case ((x, y), data) => placeAt(x, y, data)}
     
     @JSExport
-    def placeAt(row: Int, col: Int, data: Data): Unit
+    def placeAt(row: Int, col: Int, data: Data): Option[Block]
     
     @JSExport
     def placeBySquare(square: SquareType, data: Data): Unit = 
@@ -158,8 +168,8 @@ trait Grid[Data]:
     
     @JSExport
     def placeByXY(row: Int, col: Int, data: Data): Unit = 
-        placeAt(row, col, data)
-        blocksVar.update(blocks => blocks :+ grid(row)(col).block.get)
+        val next = placeAt(row, col, data).get
+        blocksVar.update(blocks => blocks :+ next)
     
     @JSExport
     def className(data: Data): String

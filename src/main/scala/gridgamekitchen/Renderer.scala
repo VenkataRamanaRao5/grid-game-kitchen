@@ -7,6 +7,8 @@ import scala.scalajs.js.annotation.{JSExportTopLevel, JSExport, JSImport}
 import com.raquo.laminar.api.L.{*, given}
 import org.scalajs.dom.KeyboardEvent
 import com.raquo.airstream.ownership.Subscription
+import com.raquo.laminar.nodes.ReactiveHtmlElement
+import org.scalajs.dom.HTMLDivElement
 
 given owner: Owner = new Owner {}
 
@@ -79,16 +81,25 @@ object GridApp {
   @JSImport("./GridArjunJS.js", JSImport.Default)
   @js.native
   object gameRulesArjun extends GameConfigJS
+
+  @JSImport("./GridSnake.js", JSImport.Default)
+  @js.native
+  object gameRulesSnake extends GameConfigJS
   
   val gXO = DynamicGrid.create(gameRulesXO)
-  gXO.init()
   val g2048 = DynamicGrid.create(gameRules2048)
-  g2048.init()
   val gArjun = DynamicGrid.create(gameRulesArjun)
-  gArjun.init()
+  val gSnake = DynamicGrid.create(gameRulesSnake)
+
+  g2048.init()
 
   val g = Var(g2048)
   val gSignal = g.signal
+  
+
+  val gridSignalWithPrevious: Signal[(Option[Grid[?]], Grid[?])] = gSignal.scanLeft(initial => (None, initial)) { 
+    case ((_, previous), current) => (Some(previous), current) 
+  }
 
   js.Dynamic.global.window.grid = g.asInstanceOf[js.Object]
 
@@ -100,7 +111,7 @@ object GridApp {
 
     val root = document.getElementById("root")
     
-    val appElement = div(
+    val appElement: ReactiveHtmlElement[HTMLDivElement] = div(
       cls("container"),
       styleProp("--grid-rows") <-- gSignal.flatMapSwitch(_.nrows.var0.signal),
       styleProp("--grid-cols") <-- gSignal.flatMapSwitch(_.ncols.var0.signal),
@@ -110,12 +121,10 @@ object GridApp {
       button(
         cls("reset-button"),
         "Reset",
-        onClick --> { _ =>
-          gSignal.foreach(g => {
-            g.clear()
-            g.state.set(0)
-            g.init()
-        })
+        onClick.compose(_.combineWith(gSignal.changes)) --> { case (_, g) =>
+          g.clear()
+          g.state.set(0)
+          g.init()
         }
       ),
       select(
@@ -133,25 +142,41 @@ object GridApp {
           value := "Arjun",
           "Arjun",
         ),
+        option(
+          value := "Snake",
+          "Snake",
+        ),
         onChange.mapToValue --> { value =>
-          value match {
-            case "XO" => g.set(gXO)
-            case "2048" => g.set(g2048)
-            case "Arjun" => g.set(gArjun)
-            case _ => ()
+          val newGrid = value match {
+            case "XO" => gXO
+            case "2048" => g2048
+            case "Arjun" => gArjun
+            case "Snake" => gSnake
+            case _ => g2048
           }
-          gSignal.foreach(_.init())
+          g.set(newGrid)
         }
       ),
       child <-- renderGrid(gSignal),
       onMountCallback(cont => 
-        gSignal.foreach(g => 
-          g.gridListeners.foreach {
-            case (name, func) => 
-              cont.thisNode.ref.addEventListener(name, func)
+        gridSignalWithPrevious.foreach { case (previousGrid, nextGrid) =>
+          previousGrid.foreach { case (previousGrid) =>
+            println((previousGrid.nrows.now(), nextGrid.nrows.now()))
+            previousGrid.clear()
+            previousGrid.gridListeners.foreach { case (name, func) =>
+              cont.thisNode.ref.removeEventListener(name, func)
+            }
           }
-          cont.thisNode.ref.asInstanceOf[js.Dynamic].grid = g.asInstanceOf[js.Object]
-        )
+
+          println("eherherhehreh")
+          nextGrid.gridListeners.foreach { case (name, func) =>
+            cont.thisNode.ref.addEventListener(name, func)
+          }
+          nextGrid.init()
+          cont.thisNode.ref.asInstanceOf[js.Dynamic].grid = nextGrid.asInstanceOf[js.Object]
+        }
+
+
       ),
     )
     renderOnDomContentLoaded(
